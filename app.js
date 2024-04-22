@@ -1,7 +1,8 @@
 import express from 'express';
 import { pool } from './database.js';
 import {
-     getUserFromDatabase
+    getUserFromDatabase,
+    createUser
 } from "./database.js";
 
 import bodyParser from 'body-parser';
@@ -62,7 +63,7 @@ passport.deserializeUser(async function(id, done) {
 
 app.post('/login', passport.authenticate('local'), function(req, res) {
     console.log("logowanko")
-    res.status(200).json({ message: 'Login successful' });
+    res.send(req.user)
 });
 
 app.get('/', function(req, res) {
@@ -98,4 +99,15 @@ app.get('/protected-route2', ensureAuthenticatedAndAdmin, function(req, res){
 });
 app.get('/un_protected-route', function(req, res){
     res.send('You have accessed the protected route2!');
+});
+
+app.post("/createUser", async (req, res) => {
+    const {imie, nazwisko, email,username,haslo} = req.body;
+    try {
+        const user = await createUser(imie, nazwisko, email,username,haslo);
+        res.status(201).send("user created successfully");
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Error creating user");
+    }
 });
