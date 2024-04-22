@@ -2,7 +2,8 @@ import express from 'express';
 import { pool } from './database.js';
 import {
     getUserFromDatabase,
-    createUser
+    createUser,
+    createList
 } from "./database.js";
 
 import bodyParser from 'body-parser';
@@ -60,7 +61,6 @@ passport.deserializeUser(async function(id, done) {
     const [user] = await pool.query("SELECT * FROM klient WHERE idKlienta = ?", [id]);
     done(null, user[0]);
 });
-
 app.post('/login', passport.authenticate('local'), function(req, res) {
     console.log("logowanko")
     res.send(req.user)
@@ -109,5 +109,15 @@ app.post("/createUser", async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).send("Error creating user");
+    }
+});
+app.post("/createList", async (req, res) => {
+    const {idTworcy, nazwa} = req.body;
+    try {
+        const list = await createList(idTworcy, nazwa);
+        res.status(201).send("List created successfully");
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Error creating list");
     }
 });

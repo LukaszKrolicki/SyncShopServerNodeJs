@@ -18,7 +18,9 @@ export async function getUserFromDatabase(username,password) {
 export async function createUser(imie, nazwisko, email,username,haslo){
     const [result] = await  pool.query("Insert into klient (imie, nazwisko, email,username,haslo,typ) values (?,?,?,?,?,?)", [imie, nazwisko, email,username,haslo,"-"])
 }
-
+export async function createList(idTworcy, nazwa){
+    const [result] = await  pool.query("Insert into listazakupow (idTworcy, Nazwa) values (?,?)", [idTworcy, nazwa])
+}
 
 export { pool };
 
