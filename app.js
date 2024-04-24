@@ -111,10 +111,10 @@ app.post("/createUser", async (req, res) => {
         res.status(500).send("Error creating user");
     }
 });
-app.post("/createList", async (req, res) => {
-    const {idTworcy, nazwa} = req.body;
+app.post("/createList", ensureAuthenticated, async (req, res) => {
+    const {idTworcy, nazwa, dataPocz, dataKon} = req.body;
     try {
-        const list = await createList(idTworcy, nazwa);
+        const list = await createList(idTworcy, nazwa, dataPocz, dataKon);
         res.status(201).send("List created successfully");
     } catch (error) {
         console.error(error);
