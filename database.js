@@ -22,6 +22,7 @@ export async function createList(idTworcy, nazwa){
     const [result] = await  pool.query("Insert into listazakupow (idTworcy, Nazwa) values (?,?)", [idTworcy, nazwa])
 }
 
+
 export { pool };
 
 
