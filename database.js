@@ -33,11 +33,14 @@ export async function getUserByUsername(username) {
         // Handle the error gracefully
     }
 }
-export async function createInvite(idZapraszajacego, idZapraszonego){
-    const [result] = await  pool.query("Insert into zaproszenie (idZapraszajacego, idZaproszonego, status) values (?,?, ?)", [idZapraszajacego, idZapraszonego,"brak"])
+export async function createInvite(idZapraszajacego, idZapraszonego, username){
+    const [result] = await  pool.query("Insert into zaproszenie (idZapraszajacego, idZaproszonego, username,status) values (?,?, ?,?)", [idZapraszajacego, idZapraszonego,username,"brak"])
 }
 
-
+export async function getFriendRequests(idZaproszonego) {
+    const [rows] = await pool.query("SELECT * FROM zaproszenie WHERE idZaproszonego = ?", [idZaproszonego]);
+    return rows;
+}
 
 export { pool };
 

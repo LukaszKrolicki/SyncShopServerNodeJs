@@ -6,6 +6,7 @@ import {
     createList,
     getUserByUsername,
     createInvite,
+    getFriendRequests,
 } from "./database.js";
 
 import bodyParser from 'body-parser';
@@ -109,6 +110,11 @@ app.get('/searchUser/:username', ensureAuthenticated, async function (req, res) 
     res.send(friendList)
 });
 
+app.get('/getUserInvitation/:userId', ensureAuthenticated, async function (req, res) {
+    const id = req.params.userId;
+    const friendRequests = await getFriendRequests(id);
+    res.send(friendRequests)
+});
 
 app.post("/createUser", async (req, res) => {
     const {imie, nazwisko, email,username,haslo} = req.body;
@@ -133,9 +139,9 @@ app.post("/createList", ensureAuthenticated, async (req, res) => {
 });
 
 app.post("/createInvite", ensureAuthenticated, async (req, res) => {
-    const {idZapraszajacego, idZapraszonego} = req.body;
+    const {idZapraszajacego, idZapraszonego,username} = req.body;
     try {
-        const list = await createInvite(idZapraszajacego, idZapraszonego);
+        const list = await createInvite(idZapraszajacego, idZapraszonego,username);
         res.status(201).send("List created successfully");
     } catch (error) {
         console.error(error);
