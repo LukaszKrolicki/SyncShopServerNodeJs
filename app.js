@@ -1,5 +1,5 @@
 import express from 'express';
-import {pool} from './database.js';
+import {pool, setFriendRequestStatus} from './database.js';
 import {
     getUserFromDatabase,
     createUser,
@@ -7,6 +7,7 @@ import {
     getUserByUsername,
     createInvite,
     getFriendRequests,
+    createFriendBind
 } from "./database.js";
 
 import bodyParser from 'body-parser';
@@ -142,6 +143,28 @@ app.post("/createInvite", ensureAuthenticated, async (req, res) => {
     const {idZapraszajacego, idZapraszonego,username} = req.body;
     try {
         const list = await createInvite(idZapraszajacego, idZapraszonego,username);
+        res.status(201).send("List created successfully");
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Error sendin invite request");
+    }
+});
+
+app.post("/createFriendBind", ensureAuthenticated, async (req, res) => {
+    const {idZnaj1, idZnaj2} = req.body;
+    try {
+        const list = await createFriendBind(idZnaj1, idZnaj2);
+        res.status(201).send("List created successfully");
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Error sendin friend bind request");
+    }
+});
+
+app.post("/updateInvitation", ensureAuthenticated, async (req, res) => {
+    const {idZapraszajacego, idZapraszonego,status} = req.body;
+    try {
+        const list = await setFriendRequestStatus(idZapraszajacego, idZapraszonego,status);
         res.status(201).send("List created successfully");
     } catch (error) {
         console.error(error);

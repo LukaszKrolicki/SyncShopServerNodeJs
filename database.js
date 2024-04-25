@@ -38,9 +38,19 @@ export async function createInvite(idZapraszajacego, idZapraszonego, username){
 }
 
 export async function getFriendRequests(idZaproszonego) {
-    const [rows] = await pool.query("SELECT * FROM zaproszenie WHERE idZaproszonego = ?", [idZaproszonego]);
+    const [rows] = await pool.query("SELECT * FROM zaproszenie WHERE idZaproszonego = ? AND status = 'brak' ", [idZaproszonego]);
     return rows;
 }
+
+export async function setFriendRequestStatus(idZapraszajacego, idZapraszonego,status) {
+    const [rows] = await pool.query("UPDATE zaproszenie SET status= ? WHERE idZaproszonego = ? AND idZapraszajacego = ?  ", [status,idZapraszonego,idZapraszajacego]);
+    return rows;
+}
+
+export async function createFriendBind(idZnaj1, idZnaj2){
+    const [result] = await  pool.query("Insert into znajomi (idZnajomego1, idZnajomego2) values (?,?)", [idZnaj1, idZnaj2])
+}
+
 
 export { pool };
 
