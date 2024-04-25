@@ -54,7 +54,9 @@ export async function setFriendRequestStatus(idZapraszajacego, idZapraszonego,st
 export async function createFriendBind(idZnaj1, idZnaj2){
     const [result] = await  pool.query("Insert into znajomi (idZnajomego1, idZnajomego2) values (?,?)", [idZnaj1, idZnaj2])
 }
-
+export async function deleteFriend(idZnaj,idZnaj2){
+    const [result] = await  pool.query("DELETE FROM znajomi WHERE (idZnajomego1=? AND idZnajomego2=?) OR (idZnajomego1=? AND idZnajomego2=?)", [idZnaj,idZnaj2,idZnaj2,idZnaj])
+}
 
 export { pool };
 

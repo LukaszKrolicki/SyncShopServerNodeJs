@@ -8,7 +8,8 @@ import {
     createInvite,
     getFriendRequests,
     createFriendBind,
-    getFriends
+    getFriends,
+    deleteFriend
 } from "./database.js";
 
 import bodyParser from 'body-parser';
@@ -172,6 +173,17 @@ app.post("/updateInvitation", ensureAuthenticated, async (req, res) => {
     const {idZapraszajacego, idZapraszonego,status} = req.body;
     try {
         const list = await setFriendRequestStatus(idZapraszajacego, idZapraszonego,status);
+        res.status(201).send("List created successfully");
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Error sendin invite request");
+    }
+});
+
+app.post("/deleteFriend", ensureAuthenticated, async (req, res) => {
+    const {idZnaj,idZnaj2} = req.body;
+    try {
+        const list = await deleteFriend(idZnaj,idZnaj2);
         res.status(201).send("List created successfully");
     } catch (error) {
         console.error(error);
