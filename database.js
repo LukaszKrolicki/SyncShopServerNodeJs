@@ -41,6 +41,10 @@ export async function getFriendRequests(idZaproszonego) {
     const [rows] = await pool.query("SELECT * FROM zaproszenie WHERE idZaproszonego = ? AND status = 'brak' ", [idZaproszonego]);
     return rows;
 }
+export async function getFriends(idK) {
+    const [rows] = await pool.query("SELECT idKlienta, imie, nazwisko, email, typ, username FROM klient WHERE idKlienta IN (SELECT CASE WHEN idZnajomego1 = ? THEN idZnajomego2 ELSE idZnajomego1 END AS idZnajomego FROM znajomi WHERE idZnajomego1 = ? OR idZnajomego2 = ? );", [idK,idK,idK]);
+    return rows;
+}
 
 export async function setFriendRequestStatus(idZapraszajacego, idZapraszonego,status) {
     const [rows] = await pool.query("UPDATE zaproszenie SET status= ? WHERE idZaproszonego = ? AND idZapraszajacego = ?  ", [status,idZapraszonego,idZapraszajacego]);

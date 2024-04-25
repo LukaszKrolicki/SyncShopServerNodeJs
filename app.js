@@ -1,5 +1,5 @@
 import express from 'express';
-import {pool, setFriendRequestStatus} from './database.js';
+import { pool, setFriendRequestStatus} from './database.js';
 import {
     getUserFromDatabase,
     createUser,
@@ -7,7 +7,8 @@ import {
     getUserByUsername,
     createInvite,
     getFriendRequests,
-    createFriendBind
+    createFriendBind,
+    getFriends
 } from "./database.js";
 
 import bodyParser from 'body-parser';
@@ -115,6 +116,12 @@ app.get('/getUserInvitation/:userId', ensureAuthenticated, async function (req, 
     const id = req.params.userId;
     const friendRequests = await getFriendRequests(id);
     res.send(friendRequests)
+});
+
+app.get('/getFriends/:userId', ensureAuthenticated, async function (req, res) {
+    const id = req.params.userId;
+    const friendList = await getFriends(id);
+    res.send(friendList)
 });
 
 app.post("/createUser", async (req, res) => {
