@@ -1,9 +1,11 @@
 import express from 'express';
-import { pool } from './database.js';
+import {pool} from './database.js';
 import {
     getUserFromDatabase,
     createUser,
-    createList
+    createList,
+    getUserByUsername,
+    createInvite,
 } from "./database.js";
 
 import bodyParser from 'body-parser';
@@ -77,11 +79,6 @@ function ensureAuthenticated(req, res, next) {
     res.redirect('/login')
 }
 
-app.get('/protected-route', ensureAuthenticated, function(req, res){
-    res.send('You have accessed the protected route!');
-
-});
-
 function ensureAuthenticatedAndAdmin(req, res, next) {
     if (req.isAuthenticated()) {
         if (req.user.typ === 'Admin') {
@@ -94,12 +91,24 @@ function ensureAuthenticatedAndAdmin(req, res, next) {
     }
 }
 
+app.get('/protected-route', ensureAuthenticated, function(req, res){
+    res.send('You have accessed the protected route!');
+
+});
+
 app.get('/protected-route2', ensureAuthenticatedAndAdmin, function(req, res){
     res.send('You have accessed the protected route for Admin!');
 });
 app.get('/un_protected-route', function(req, res){
     res.send('You have accessed the protected route2!');
 });
+
+app.get('/searchUser/:username', ensureAuthenticated, async function (req, res) {
+    const username = req.params.username;
+    const friendList = await getUserByUsername(username);
+    res.send(friendList)
+});
+
 
 app.post("/createUser", async (req, res) => {
     const {imie, nazwisko, email,username,haslo} = req.body;
@@ -111,6 +120,7 @@ app.post("/createUser", async (req, res) => {
         res.status(500).send("Error creating user");
     }
 });
+
 app.post("/createList", ensureAuthenticated, async (req, res) => {
     const {idTworcy, nazwa, dataPocz, dataKon} = req.body;
     try {
@@ -119,5 +129,16 @@ app.post("/createList", ensureAuthenticated, async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).send("Error creating list");
+    }
+});
+
+app.post("/createInvite", ensureAuthenticated, async (req, res) => {
+    const {idZapraszajacego, idZapraszonego} = req.body;
+    try {
+        const list = await createInvite(idZapraszajacego, idZapraszonego);
+        res.status(201).send("List created successfully");
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Error sendin invite request");
     }
 });

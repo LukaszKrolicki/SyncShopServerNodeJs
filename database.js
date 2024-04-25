@@ -22,6 +22,22 @@ export async function createList(idTworcy, nazwa, dataPocz, dataKon){;
     const [result] = await  pool.query("Insert into listazakupow (idTworcy, Nazwa, dataPocz, dataKon) values (?,?, ?, ?)", [idTworcy, nazwa, dataPocz, dataKon])
 }
 
+export async function getUserByUsername(username) {
+    try {
+        const [rows] = await pool.query("SELECT idKlienta, imie, nazwisko, email, typ, username FROM klient WHERE LOWER(username) LIKE LOWER(?)", [username+"%"]);
+        console.log(rows); // Check the result
+        return rows
+        // Process the result further if needed
+    } catch (error) {
+        console.error("Error executing SQL query:", error);
+        // Handle the error gracefully
+    }
+}
+export async function createInvite(idZapraszajacego, idZapraszonego){
+    const [result] = await  pool.query("Insert into zaproszenie (idZapraszajacego, idZaproszonego, status) values (?,?, ?)", [idZapraszajacego, idZapraszonego,"brak"])
+}
+
+
 
 export { pool };
 
