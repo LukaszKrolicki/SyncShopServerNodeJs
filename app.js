@@ -9,7 +9,8 @@ import {
     getFriendRequests,
     createFriendBind,
     getFriends,
-    deleteFriend
+    deleteFriend,
+    createListBind
 } from "./database.js";
 
 import bodyParser from 'body-parser';
@@ -139,8 +140,8 @@ app.post("/createUser", async (req, res) => {
 app.post("/createList", ensureAuthenticated, async (req, res) => {
     const {idTworcy, nazwa, dataPocz, dataKon} = req.body;
     try {
-        const list = await createList(idTworcy, nazwa, dataPocz, dataKon);
-        res.status(201).send("List created successfully");
+        const listId = await createList(idTworcy, nazwa, dataPocz, dataKon);
+        res.status(201).send({ listazakupowid: listId });
     } catch (error) {
         console.error(error);
         res.status(500).send("Error creating list");
@@ -188,5 +189,16 @@ app.post("/deleteFriend", ensureAuthenticated, async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).send("Error sendin invite request");
+    }
+});
+
+app.post("/createListBind", ensureAuthenticated, async (req, res) => {
+    const {idK, idL} = req.body;
+    try {
+        const list = await createListBind(idK, idL);
+        res.status(201).send("created successfully");
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Error");
     }
 });

@@ -19,7 +19,8 @@ export async function createUser(imie, nazwisko, email,username,haslo){
     const [result] = await  pool.query("Insert into klient (imie, nazwisko, email,username,haslo,typ) values (?,?,?,?,?,?)", [imie, nazwisko, email,username,haslo,"-"])
 }
 export async function createList(idTworcy, nazwa, dataPocz, dataKon){;
-    const [result] = await  pool.query("Insert into listazakupow (idTworcy, Nazwa, dataPocz, dataKon) values (?,?, ?, ?)", [idTworcy, nazwa, dataPocz, dataKon])
+    const [result] = await  pool.query("Insert into listazakupow (idTworcy, Nazwa, dataPocz, dataKon) values (?,?, ?, ?)", [idTworcy, nazwa, "-", "-"])
+    return result.insertId;
 }
 
 export async function getUserByUsername(username) {
@@ -56,6 +57,10 @@ export async function createFriendBind(idZnaj1, idZnaj2){
 }
 export async function deleteFriend(idZnaj,idZnaj2){
     const [result] = await  pool.query("DELETE FROM znajomi WHERE (idZnajomego1=? AND idZnajomego2=?) OR (idZnajomego1=? AND idZnajomego2=?)", [idZnaj,idZnaj2,idZnaj2,idZnaj])
+}
+
+export async function createListBind(idK, idL){
+    const [result] = await  pool.query("Insert into listazakupow_klient (idKlienta, idListy) values (?,?)", [idK, idL])
 }
 
 export { pool };
