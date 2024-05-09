@@ -63,6 +63,21 @@ export async function createListBind(idK, idL){
     const [result] = await  pool.query("Insert into listazakupow_klient (idKlienta, idListy) values (?,?)", [idK, idL])
 }
 
+export async function updateUser(idUser, email,name,surname) {
+    const [rows] = await pool.query("UPDATE klient SET imie= ?, nazwisko=?, email=? WHERE idKlienta = ? ", [name,surname,email,idUser]);
+    return rows;
+}
+
+export async function updateUserPass(idUser, password) {
+    const [rows] = await pool.query("UPDATE klient SET haslo=? WHERE idKlienta = ? ", [password,idUser]);
+    return rows;
+}
+
+export async function checkPassword(username, password) {
+    const [rows] = await pool.query("SELECT * FROM klient WHERE username = ? AND haslo=?", [username, password]);
+    return rows.length > 0;
+}
+
 export { pool };
 
 

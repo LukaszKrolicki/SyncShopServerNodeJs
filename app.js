@@ -1,5 +1,5 @@
 import express from 'express';
-import { pool, setFriendRequestStatus} from './database.js';
+import {checkPassword, pool, setFriendRequestStatus, updateUser, updateUserPass} from './database.js';
 import {
     getUserFromDatabase,
     createUser,
@@ -200,5 +200,37 @@ app.post("/createListBind", ensureAuthenticated, async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).send("Error");
+    }
+});
+
+app.post("/updateUser", ensureAuthenticated, async (req, res) => {
+    const {idUser, email,name,surname} = req.body;
+    try {
+        const list = await updateUser(idUser, email,name,surname);
+        res.status(201).send("Updated successfully");
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Error update");
+    }
+});
+
+app.post("/updateUserPass", ensureAuthenticated, async (req, res) => {
+    const {idUser, password} = req.body;
+    try {
+        const list = await updateUserPass(idUser, password);
+        res.status(201).send("Updated successfully");
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Error update");
+    }
+});
+
+app.post('/checkPassword', async (req, res) => {
+    const { username, password } = req.body;
+    const isPasswordCorrect = await checkPassword(username, password);
+    if (isPasswordCorrect) {
+        res.status(200).send({ message: 'Password is correct' });
+    } else {
+        res.status(401).send({ message: 'Password is incorrect' });
     }
 });
