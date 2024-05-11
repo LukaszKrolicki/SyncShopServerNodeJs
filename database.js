@@ -21,6 +21,8 @@ export async function createUser(imie, nazwisko, email,username,haslo){
 export async function createList(idTworcy, nazwa, dataPocz, dataKon){
     const [result] = await  pool.query("Insert into listazakupow (idTworcy, Nazwa, dataPocz, dataKon) values (?,?, ?, ?)", [idTworcy, nazwa, dataPocz, dataKon]);
     const [result2] = await  pool.query("Insert into listazakupow_klient (idListy, idKlienta) values (LAST_INSERT_ID(),?)", [idTworcy]);
+    const [rows] = await pool.query("SELECT LAST_INSERT_ID() as id");
+    return rows[0].id;
 }
 
 export async function getUserByUsername(username) {
