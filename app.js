@@ -9,7 +9,10 @@ import {
     getFriendRequests,
     createFriendBind,
     getFriends,
-    deleteFriend
+    deleteFriend,
+    getLists,
+    deleteShoppingList,
+    deleteAllEntriesWithIdListy
 } from "./database.js";
 
 import bodyParser from 'body-parser';
@@ -146,7 +149,11 @@ app.post("/createList", ensureAuthenticated, async (req, res) => {
         res.status(500).send("Error creating list");
     }
 });
-
+app.get('/getUserLists/:userId', ensureAuthenticated, async function (req, res) {
+    const id = req.params.userId;
+    const listsRequest = await getLists(id);
+    res.send(listsRequest)
+});
 app.post("/createInvite", ensureAuthenticated, async (req, res) => {
     const {idZapraszajacego, idZapraszonego,username} = req.body;
     try {
@@ -188,5 +195,16 @@ app.post("/deleteFriend", ensureAuthenticated, async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).send("Error sendin invite request");
+    }
+});
+
+app.post("/deleteList", ensureAuthenticated, async (req, res) => {
+    const {idKli,idListy} = req.body;
+    try {
+        const list = await deleteAllEntriesWithIdListy(idListy,idKli);
+        res.status(201).send("List deleted successfully");
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Error deleting list");
     }
 });

@@ -18,8 +18,9 @@ export async function getUserFromDatabase(username,password) {
 export async function createUser(imie, nazwisko, email,username,haslo){
     const [result] = await  pool.query("Insert into klient (imie, nazwisko, email,username,haslo,typ) values (?,?,?,?,?,?)", [imie, nazwisko, email,username,haslo,"-"])
 }
-export async function createList(idTworcy, nazwa, dataPocz, dataKon){;
-    const [result] = await  pool.query("Insert into listazakupow (idTworcy, Nazwa, dataPocz, dataKon) values (?,?, ?, ?)", [idTworcy, nazwa, dataPocz, dataKon])
+export async function createList(idTworcy, nazwa, dataPocz, dataKon){
+    const [result] = await  pool.query("Insert into listazakupow (idTworcy, Nazwa, dataPocz, dataKon) values (?,?, ?, ?)", [idTworcy, nazwa, dataPocz, dataKon]);
+    const [result2] = await  pool.query("Insert into listazakupow_klient (idListy, idKlienta) values (LAST_INSERT_ID(),?)", [idTworcy]);
 }
 
 export async function getUserByUsername(username) {
@@ -57,7 +58,27 @@ export async function createFriendBind(idZnaj1, idZnaj2){
 export async function deleteFriend(idZnaj,idZnaj2){
     const [result] = await  pool.query("DELETE FROM znajomi WHERE (idZnajomego1=? AND idZnajomego2=?) OR (idZnajomego1=? AND idZnajomego2=?)", [idZnaj,idZnaj2,idZnaj2,idZnaj])
 }
+export async function getLists(idK) {
+    const [rows] = await pool.query("SELECT idListy, idTworcy, Nazwa, dataPocz, dataKon FROM listazakupow WHERE idListy IN (SELECT idListy FROM listazakupow_klient WHERE idKlienta = ?);", [idK]);
+    return rows;
+}
+export async function deleteShoppingList(idKli, idListy){
+    const [result] = await  pool.query("DELETE FROM listazakupow_klient WHERE idKlienta = ? AND idListy = ?", [idKli, idListy])
+}
+export async function deleteAllEntriesWithIdListy(idListy, userId){
+    // Check if the user is the author of the list
+    const [rows] = await pool.query("SELECT idTworcy FROM listazakupow WHERE idListy = ?", [idListy]);
+    if (rows.length > 0 && rows[0].idTworcy === userId) {
+        // User is the author, proceed with deletion
+        // Delete from listazakupow_klient table
+        const [result1] = await pool.query("DELETE FROM listazakupow_klient WHERE idListy = ?", [idListy]);
 
+        // Delete from listazakupow table
+        const [result2] = await pool.query("DELETE FROM listazakupow WHERE idListy = ?", [idListy]);
+    } else {
+        const [result] = await  pool.query("DELETE FROM listazakupow_klient WHERE idListy = ? AND idKlienta = ?", [idListy, userId])
+    }
+}
 export { pool };
 
 
