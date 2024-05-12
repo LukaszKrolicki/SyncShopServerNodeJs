@@ -110,6 +110,9 @@ export async function checkPassword(username, password) {
     return rows.length > 0;
 }
 
+export async function deleteShoppingListNotification(idKli, idListy){
+    const [result] = await  pool.query("DELETE FROM zaproszenie_do_listy WHERE idListy = ? AND idZapraszajacego = ?", [idListy,idKli])
+}
 
 
 export { pool };

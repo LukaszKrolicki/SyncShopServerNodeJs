@@ -1,7 +1,7 @@
 import express from 'express';
 import {
     checkPassword,
-    createShoppingInvite, getShoppingRequests,
+    createShoppingInvite, deleteShoppingListNotification, getShoppingRequests,
     pool,
     setFriendRequestStatus,
     updateUser,
@@ -279,3 +279,15 @@ app.post("/deleteList", ensureAuthenticated, async (req, res) => {
 
     }
     });
+
+app.post("/deleteListNotification", ensureAuthenticated, async (req, res) => {
+    const {idKli,idListy} = req.body;
+    try {
+        const list = await deleteShoppingListNotification(idKli,idListy);
+        res.status(201).send("List deleted successfully");
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Error deleting list");
+
+    }
+});
