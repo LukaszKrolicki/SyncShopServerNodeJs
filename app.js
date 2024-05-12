@@ -1,5 +1,12 @@
 import express from 'express';
-import {checkPassword, pool, setFriendRequestStatus, updateUser, updateUserPass} from './database.js';
+import {
+    checkPassword,
+    createShoppingInvite, getShoppingRequests,
+    pool,
+    setFriendRequestStatus,
+    updateUser,
+    updateUserPass
+} from './database.js';
 import {
     getUserFromDatabase,
     createUser,
@@ -10,7 +17,10 @@ import {
     createFriendBind,
     getFriends,
     deleteFriend,
-    createListBind
+    createListBind,
+    getLists,
+    deleteShoppingList,
+    deleteAllEntriesWithIdListy
 } from "./database.js";
 
 import bodyParser from 'body-parser';
@@ -120,6 +130,12 @@ app.get('/getUserInvitation/:userId', ensureAuthenticated, async function (req, 
     res.send(friendRequests)
 });
 
+app.get('/getUserShoppingInvitation/:userId', ensureAuthenticated, async function (req, res) {
+    const id = req.params.userId;
+    const friendRequests = await getShoppingRequests(id);
+    res.send(friendRequests)
+});
+
 app.get('/getFriends/:userId', ensureAuthenticated, async function (req, res) {
     const id = req.params.userId;
     const friendList = await getFriends(id);
@@ -147,7 +163,11 @@ app.post("/createList", ensureAuthenticated, async (req, res) => {
         res.status(500).send("Error creating list");
     }
 });
-
+app.get('/getUserLists/:userId', ensureAuthenticated, async function (req, res) {
+    const id = req.params.userId;
+    const listsRequest = await getLists(id);
+    res.send(listsRequest)
+});
 app.post("/createInvite", ensureAuthenticated, async (req, res) => {
     const {idZapraszajacego, idZapraszonego,username} = req.body;
     try {
@@ -192,10 +212,23 @@ app.post("/deleteFriend", ensureAuthenticated, async (req, res) => {
     }
 });
 
+
 app.post("/createListBind", ensureAuthenticated, async (req, res) => {
     const {idK, idL} = req.body;
     try {
         const list = await createListBind(idK, idL);
+        res.status(201).send("created successfully");
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Error");
+    }
+});
+
+
+app.post("/createShoppingBind", ensureAuthenticated, async (req, res) => {
+    const {idZapraszajacego, idListy,idZapraszanego} = req.body;
+    try {
+        const list = await createShoppingInvite(idZapraszajacego, idListy,idZapraszanego);
         res.status(201).send("created successfully");
     } catch (error) {
         console.error(error);
@@ -226,11 +259,23 @@ app.post("/updateUserPass", ensureAuthenticated, async (req, res) => {
 });
 
 app.post('/checkPassword', async (req, res) => {
-    const { username, password } = req.body;
+    const {username, password} = req.body;
     const isPasswordCorrect = await checkPassword(username, password);
     if (isPasswordCorrect) {
-        res.status(200).send({ message: 'Password is correct' });
+        res.status(200).send({message: 'Password is correct'});
     } else {
-        res.status(401).send({ message: 'Password is incorrect' });
+        res.status(401).send({message: 'Password is incorrect'})
     }
 });
+
+app.post("/deleteList", ensureAuthenticated, async (req, res) => {
+    const {idKli,idListy} = req.body;
+    try {
+        const list = await deleteAllEntriesWithIdListy(idListy,idKli);
+        res.status(201).send("List deleted successfully");
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Error deleting list");
+
+    }
+    });
