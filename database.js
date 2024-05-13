@@ -116,6 +116,8 @@ export async function deleteShoppingListNotification(idKli, idListy){
 
 export async function addProduct(idListy, idKlienta,nazwaTworzacego,nazwa,cena,ilosc,notatka,sklep,status){
     const [result] = await  pool.query("Insert into produkt (idListy, idKlienta,nazwaTworzacego,nazwa,cena,ilosc,notatka,sklep,status) values (?,?,?,?,?,?,?,?,?)", [idListy, idKlienta,nazwaTworzacego,nazwa,cena,ilosc,notatka,sklep,status])
+    const [rows] = await pool.query("SELECT LAST_INSERT_ID() as id");
+    return rows[0].id;
 }
 
 

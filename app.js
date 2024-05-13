@@ -297,7 +297,7 @@ app.post("/addProduct", ensureAuthenticated, async (req, res) => {
     const {idListy, idKlienta,nazwaTworzacego,nazwa,cena,ilosc,notatka,sklep,status} = req.body;
     try {
         const list = await addProduct(idListy, idKlienta,nazwaTworzacego,nazwa,cena,ilosc,notatka,sklep,status);
-        res.status(201).send("created successfully");
+        res.status(201).send({ productId: list });
     } catch (error) {
         console.error(error);
         res.status(500).send("Error");
