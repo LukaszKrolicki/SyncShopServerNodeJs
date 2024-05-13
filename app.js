@@ -4,7 +4,7 @@ import {
     checkPassword,
     createShoppingInvite, deleteShoppingListNotification, getShoppingRequests,
     pool, retrieveProductsFromList,
-    setFriendRequestStatus,
+    setFriendRequestStatus, setProductStatus,
     updateUser,
     updateUserPass
 } from './database.js';
@@ -309,5 +309,16 @@ app.post("/addProduct", ensureAuthenticated, async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).send("Error");
+    }
+});
+
+app.post("/updateProduct", ensureAuthenticated, async (req, res) => {
+    const {idListy,idProduktu,nazwa,status} = req.body;
+    try {
+        const list = await setProductStatus(idListy,idProduktu,nazwa,status);
+        res.status(201).send("Updated successfully");
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Error update");
     }
 });

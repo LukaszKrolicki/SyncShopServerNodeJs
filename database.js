@@ -125,7 +125,18 @@ export async function retrieveProductsFromList(idListy,status){
     return rows;
 }
 
-
+export async function setProductStatus(idListy,idProduktu,nazwa,status){
+    if(status=="reserved"){
+        const [rows] = await  pool.query("UPDATE produkt SET status=?, nazwaRezerwujacego=? WHERE idListy=? and idProduktu=?", [status,nazwa,idListy,idProduktu]);
+    }
+    else if(status=="bought"){
+        const [rows] = await  pool.query("UPDATE produkt SET status=?, nazwaKupujacego=? WHERE idListy=? and idProduktu=?", [status,nazwa,idListy,idProduktu]);
+    }
+    else{
+        const [rows] = await  pool.query("UPDATE produkt SET status=?,nazwaKupujacego=?, nazwaRezerwujacego=? WHERE idListy=? and idProduktu=?", [status,"-","-",idListy,idProduktu]);
+    }
+    return "ok";
+}
 
 export { pool };
 
