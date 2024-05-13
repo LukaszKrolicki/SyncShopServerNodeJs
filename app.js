@@ -1,5 +1,6 @@
 import express from 'express';
 import {
+    addProduct,
     checkPassword,
     createShoppingInvite, deleteShoppingListNotification, getShoppingRequests,
     pool,
@@ -289,5 +290,16 @@ app.post("/deleteListNotification", ensureAuthenticated, async (req, res) => {
         console.error(error);
         res.status(500).send("Error deleting list");
 
+    }
+});
+
+app.post("/addProduct", ensureAuthenticated, async (req, res) => {
+    const {idListy, idKlienta,nazwaTworzacego,nazwa,cena,ilosc,notatka,sklep,status} = req.body;
+    try {
+        const list = await addProduct(idListy, idKlienta,nazwaTworzacego,nazwa,cena,ilosc,notatka,sklep,status);
+        res.status(201).send("created successfully");
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Error");
     }
 });

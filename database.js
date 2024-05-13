@@ -114,6 +114,10 @@ export async function deleteShoppingListNotification(idKli, idListy){
     const [result] = await  pool.query("DELETE FROM zaproszenie_do_listy WHERE idListy = ? AND idZapraszajacego = ?", [idListy,idKli])
 }
 
+export async function addProduct(idListy, idKlienta,nazwaTworzacego,nazwa,cena,ilosc,notatka,sklep,status){
+    const [result] = await  pool.query("Insert into produkt (idListy, idKlienta,nazwaTworzacego,nazwa,cena,ilosc,notatka,sklep,status) values (?,?,?,?,?,?,?,?,?)", [idListy, idKlienta,nazwaTworzacego,nazwa,cena,ilosc,notatka,sklep,status])
+}
+
 
 export { pool };
 
