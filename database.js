@@ -120,6 +120,12 @@ export async function addProduct(idListy, idKlienta,nazwaTworzacego,nazwa,cena,i
     return rows[0].id;
 }
 
+export async function retrieveProductsFromList(idListy,status){
+    const [rows] = await  pool.query("SELECT idProduktu,idListy, idKlienta,nazwaTworzacego,nazwa,cena,typ,ilosc,notatka,sklep,status,nazwaRezerwujacego, nazwaKupujacego FROM produkt where idListy=? and status=?", [idListy,status]);
+    return rows;
+}
+
+
 
 export { pool };
 

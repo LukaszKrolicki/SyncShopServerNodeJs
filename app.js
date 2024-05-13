@@ -3,7 +3,7 @@ import {
     addProduct,
     checkPassword,
     createShoppingInvite, deleteShoppingListNotification, getShoppingRequests,
-    pool,
+    pool, retrieveProductsFromList,
     setFriendRequestStatus,
     updateUser,
     updateUserPass
@@ -142,6 +142,14 @@ app.get('/getFriends/:userId', ensureAuthenticated, async function (req, res) {
     const friendList = await getFriends(id);
     res.send(friendList)
 });
+
+app.get('/getListProducts/:listId/:status', ensureAuthenticated, async function (req, res) {
+    const id = req.params.listId;
+    const status = req.params.status;
+    const productList = await retrieveProductsFromList(id,status);
+    res.send(productList)
+});
+
 
 app.post("/createUser", async (req, res) => {
     const {imie, nazwisko, email,username,haslo} = req.body;
