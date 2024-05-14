@@ -2,7 +2,7 @@ import express from 'express';
 import {
     addProduct,
     checkPassword,
-    createShoppingInvite, deleteShoppingListNotification, getShoppingRequests,
+    createShoppingInvite, deleteProduct, deleteShoppingListNotification, getShoppingRequests,
     pool, retrieveProductsFromList,
     setFriendRequestStatus, setProductStatus,
     updateUser,
@@ -320,5 +320,16 @@ app.post("/updateProduct", ensureAuthenticated, async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).send("Error update");
+    }
+});
+
+app.post("/deleteProduct", ensureAuthenticated, async (req, res) => {
+    const {idProduct, idList} = req.body;
+    try {
+        const list = await deleteProduct(idProduct, idList);
+        res.status(201).send("deleted successfully");
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Error");
     }
 });
