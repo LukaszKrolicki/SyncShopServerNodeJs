@@ -1,7 +1,7 @@
 import express from 'express';
 import {
     addProduct,
-    checkPassword,
+    checkPassword, createReport,
     createShoppingInvite, deleteProduct, deleteShoppingListNotification, getShoppingRequests,
     pool, retrieveProductsFromList,
     setFriendRequestStatus, setProductStatus,
@@ -331,5 +331,16 @@ app.post("/deleteProduct", ensureAuthenticated, async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).send("Error");
+    }
+});
+
+app.post("/createReport", async (req, res) => {
+    const {idK, opis,username} = req.body;
+    try {
+        const user = await createReport(idK, opis,username);
+        res.status(201).send("Report created successfully");
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Error creating report");
     }
 });

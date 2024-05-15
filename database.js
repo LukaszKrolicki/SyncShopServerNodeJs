@@ -141,6 +141,11 @@ export async function deleteProduct(idProduct, idList){
     const [result] = await  pool.query("DELETE FROM produkt WHERE (idProduktu=? AND idListy=?)", [idProduct, idList])
 }
 
+export async function createReport(idK, opis,username){
+    const [result] = await  pool.query("Insert into raport (idKlienta, opis,username) values (?,?,?)", [idK, opis,username])
+}
+
+
 export { pool };
 
 
