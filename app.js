@@ -1,4 +1,7 @@
 import express from 'express';
+import bcrypt from 'bcrypt';
+import nodemailer from 'nodemailer';
+
 import {
     addProduct,
     checkPassword, createReport,
@@ -154,7 +157,9 @@ app.get('/getListProducts/:listId/:status', ensureAuthenticated, async function 
 app.post("/createUser", async (req, res) => {
     const {imie, nazwisko, email,username,haslo} = req.body;
     try {
-        const user = await createUser(imie, nazwisko, email,username,haslo);
+        const saltRounds = 10;
+        const hashedPassword = await bcrypt.hash(haslo, saltRounds);
+        const user = await createUser(imie, nazwisko, email,username,hashedPassword);
         res.status(201).send("user created successfully");
     } catch (error) {
         console.error(error);
