@@ -160,6 +160,7 @@ app.post("/createUser", async (req, res) => {
         const saltRounds = 10;
         const hashedPassword = await bcrypt.hash(haslo, saltRounds);
         const user = await createUser(imie, nazwisko, email,username,hashedPassword);
+        sendEmail("", 1234)
         res.status(201).send("user created successfully");
     } catch (error) {
         console.error(error);
@@ -349,3 +350,23 @@ app.post("/createReport", async (req, res) => {
         res.status(500).send("Error creating report");
     }
 });
+
+async function sendEmail(email, loginCode) {
+    let transporter = nodemailer.createTransport({
+        service: 'gmail', // replace with your email service
+        auth: {
+            user: process.env.EMAIL, // replace with your email
+            pass: process.env.PASSWORD // replace with your password
+        }
+    });
+
+    let mailOptions = {
+        from: process.env.EMAIL, // sender address
+        to: email, // list of receivers
+        subject: 'Your Login Code', // Subject line
+        text: `Your login code is ${loginCode}` // plain text body
+    };
+
+    let info = await transporter.sendMail(mailOptions);
+    console.log('Message sent: %s', info.messageId);
+}
