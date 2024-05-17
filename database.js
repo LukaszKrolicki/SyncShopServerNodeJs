@@ -15,6 +15,11 @@ export async function getUserFromDatabase(username,password) {
     return rows;
 }
 
+export async function userExists(username, email) {
+    const [rows] = await pool.query("SELECT * FROM klient WHERE username = ? OR email=?", [username, email]);
+    return rows.length > 0;
+}
+
 export async function createUser(imie, nazwisko, email,username,haslo){
     const [result] = await  pool.query("Insert into klient (imie, nazwisko, email,username,haslo,typ) values (?,?,?,?,?,?)", [imie, nazwisko, email,username,haslo,"-"])
 }
