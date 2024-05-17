@@ -1,5 +1,5 @@
 import express from 'express';
-import bcrypt from 'bcrypt';
+import bcrypt, {hash} from 'bcrypt';
 import nodemailer from 'nodemailer';
 
 import {
@@ -9,7 +9,7 @@ import {
     pool, retrieveProductsFromList,
     setFriendRequestStatus, setProductStatus,
     updateUser,
-    updateUserPass, userEmailExists
+    updateUserPass, updateUserPassRetrieve, userEmailExists
 } from './database.js';
 import {
     getUserFromDatabase,
@@ -63,15 +63,35 @@ app.use(passport.session());
 
 
 
-passport.use(new LocalStrategy(
+// passport.use(new LocalStrategy(
+//
+//     async function(username, password, done) {
+//         console.log(username + " " + password);
+//         const user = await getUserFromDatabase(username, password);
+//         if (user.length === 0) {
+//             return done(null, false, { message: 'Incorrect credentials.' });
+//         }
+//         return done(null, user);
+//     }
+// ));
 
+passport.use(new LocalStrategy(
     async function(username, password, done) {
         console.log(username + " " + password);
-        const user = await getUserFromDatabase(username, password);
+        const user = await getUserFromDatabase(username);
         if (user.length === 0) {
             return done(null, false, { message: 'Incorrect credentials.' });
         }
-        return done(null, user);
+
+        // Compare hashed passwords
+        const match = await bcrypt.compare(password, user[0].haslo);
+        if(match) {
+            // Passwords match
+            return done(null, user);
+        } else {
+            // Passwords don't match
+            return done(null, false, { message: 'Incorrect credentials.' });
+        }
     }
 ));
 
@@ -252,7 +272,9 @@ app.post("/updateUser", ensureAuthenticated, async (req, res) => {
 app.post("/updateUserPass", ensureAuthenticated, async (req, res) => {
     const {idUser, password} = req.body;
     try {
-        const list = await updateUserPass(idUser, password);
+        const saltRounds = 10;
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
+        const list = await updateUserPass(idUser, hashedPassword);
         res.status(201).send("Updated successfully");
     } catch (error) {
         console.error(error);
@@ -405,6 +427,19 @@ app.post("/createUser", async (req, res) => {
     } catch (error) {
         console.error(error);
         res.status(500).send("Error creating user");
+    }
+});
+
+app.post("/updateUserPassRetrieve", async (req, res) => {
+    const {password,email} = req.body;
+    try {
+        const saltRounds = 10;
+        const hashedPassword = await bcrypt.hash(password, saltRounds);
+        const list = await updateUserPassRetrieve(hashedPassword,email);
+        res.status(201).send("Updated successfully");
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Error update");
     }
 });
 

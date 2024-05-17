@@ -10,8 +10,8 @@ const pool = mysql.createPool({
     database: process.env.DATABASE
 }).promise()
 
-export async function getUserFromDatabase(username,password) {
-    const [rows] = await pool.query("SELECT * FROM klient WHERE username = ? AND haslo=?", [username,password]);
+export async function getUserFromDatabase(username) {
+    const [rows] = await pool.query("SELECT * FROM klient WHERE username=?", [username]);
     return rows;
 }
 
@@ -153,6 +153,12 @@ export async function deleteProduct(idProduct, idList){
 export async function createReport(idK, opis,username){
     const [result] = await  pool.query("Insert into raport (idKlienta, opis,username) values (?,?,?)", [idK, opis,username])
 }
+
+export async function updateUserPassRetrieve(password,email) {
+    const [rows] = await pool.query("UPDATE klient SET haslo=? WHERE email = ? ", [password,email]);
+    return rows;
+}
+
 
 
 export { pool };
