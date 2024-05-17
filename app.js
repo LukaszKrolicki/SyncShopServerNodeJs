@@ -9,7 +9,7 @@ import {
     pool, retrieveProductsFromList,
     setFriendRequestStatus, setProductStatus,
     updateUser,
-    updateUserPass
+    updateUserPass, userEmailExists
 } from './database.js';
 import {
     getUserFromDatabase,
@@ -338,15 +338,17 @@ app.post("/createReport", async (req, res) => {
     }
 });
 
-const loginCode = Math.floor(Math.random() * 1000000);
+let userCodes = {};
 app.post("/sendEmail", async (req, res) => {
     const {username, email} = req.body;
+    const loginCode = Math.floor(Math.random() * 1000000);
+
     try {
         if (await userExists(username, email)) {
             throw new Error("User with this username and email already exists");
         }
-
-        const mail = await sendEmail(email, loginCode);
+        const mail = await sendEmail(email, loginCode,"We are pleased that you want to join us :) Your login code is");
+        userCodes[username] = {loginCode};
         res.status(201).send("Email sent successfully");
     } catch (error) {
         console.error(error);
@@ -354,10 +356,44 @@ app.post("/sendEmail", async (req, res) => {
     }
 });
 
+app.post("/sendEmailRetrieve", async (req, res) => {
+    const {email} = req.body;
+    const retrieveCode = Math.floor(Math.random() * 1000000);
+
+    try {
+        if (await userEmailExists(email)) {
+            const mail = await sendEmail(email, retrieveCode,"We have heard that you forgot your password :( How unfortunatelly... Your passsword retrieve code is");
+            res.status(201).send("Email sent successfully");
+            userCodes[email] = {retrieveCode};
+        }
+        else{
+            throw new Error("User with this username and email already exists");
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Error sending email");
+    }
+});
+
+app.post("/checkRetrieveCode", async (req, res) => {
+    const {passedcode,email} = req.body;
+    try {
+        if(passedcode==userCodes[email].retrieveCode){
+            res.status(201).send("ok");
+        }
+        else{
+            res.status(500).send("not ok");
+        }
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("nooot ok");
+    }
+});
+
 app.post("/createUser", async (req, res) => {
     const {imie, nazwisko, email,username,haslo, passedcode} = req.body;
     try {
-        if(passedcode==loginCode){
+        if(passedcode==userCodes[username].loginCode){
             const saltRounds = 10;
             const hashedPassword = await bcrypt.hash(haslo, saltRounds);
             const user = await createUser(imie, nazwisko, email,username,hashedPassword);
@@ -372,7 +408,7 @@ app.post("/createUser", async (req, res) => {
     }
 });
 
-async function sendEmail(email, loginCode) {
+async function sendEmail(email, loginCode,text) {
     let transporter = nodemailer.createTransport({
         service: 'gmail', // replace with your email service
         auth: {
@@ -385,7 +421,7 @@ async function sendEmail(email, loginCode) {
         from: process.env.EMAIL, // sender address
         to: email, // list of receivers
         subject: 'Syncshop registration code', // Subject line
-        text: `We are pleased that you want to join us :) Your login code is ${loginCode}` // plain text body
+        text: `${text}  ${loginCode}` // plain text body
     };
 
     let info = await transporter.sendMail(mailOptions);

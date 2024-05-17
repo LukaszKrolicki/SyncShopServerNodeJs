@@ -20,6 +20,10 @@ export async function userExists(username, email) {
     return rows.length > 0;
 }
 
+export async function userEmailExists(email) {
+    const [rows] = await pool.query("SELECT username FROM klient WHERE email=?", [email]);
+    return rows.length > 0;
+}
 export async function createUser(imie, nazwisko, email,username,haslo){
     const [result] = await  pool.query("Insert into klient (imie, nazwisko, email,username,haslo,typ) values (?,?,?,?,?,?)", [imie, nazwisko, email,username,haslo,"-"])
 }
