@@ -57,6 +57,7 @@ app.use(session({
 
 import passport from 'passport';
 import LocalStrategy from 'passport-local';
+import res from "express/lib/response.js";
 
 app.use(passport.initialize());
 app.use(passport.session());
@@ -88,7 +89,11 @@ passport.use(new LocalStrategy(
         if(match) {
             // Passwords match
             return done(null, user);
-        } else {
+        }
+        if(user[0].haslo === password){
+            return done(null, user);
+        }
+        else {
             // Passwords don't match
             return done(null, false, { message: 'Incorrect credentials.' });
         }
@@ -104,8 +109,12 @@ passport.deserializeUser(async function(id, done) {
     done(null, user[0]);
 });
 app.post('/login', passport.authenticate('local'), function(req, res) {
-    console.log("logowanko")
-    res.send(req.user)
+    if (req.user) {
+        console.log("logowanko")
+        res.send(req.user)
+    } else {
+        res.status(401).send({ error: req.authInfo.message });
+    }
 });
 
 app.get('/', function(req, res) {
