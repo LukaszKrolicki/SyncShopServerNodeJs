@@ -10,11 +10,20 @@ const pool = mysql.createPool({
     database: process.env.DATABASE
 }).promise()
 
-export async function getUserFromDatabase(username,password) {
-    const [rows] = await pool.query("SELECT * FROM klient WHERE username = ? AND haslo=?", [username,password]);
+export async function getUserFromDatabase(username) {
+    const [rows] = await pool.query("SELECT * FROM klient WHERE username=?", [username]);
     return rows;
 }
 
+export async function userExists(username, email) {
+    const [rows] = await pool.query("SELECT * FROM klient WHERE username = ? OR email=?", [username, email]);
+    return rows.length > 0;
+}
+
+export async function userEmailExists(email) {
+    const [rows] = await pool.query("SELECT username FROM klient WHERE email=?", [email]);
+    return rows.length > 0;
+}
 export async function createUser(imie, nazwisko, email,username,haslo){
     const [result] = await  pool.query("Insert into klient (imie, nazwisko, email,username,haslo,typ) values (?,?,?,?,?,?)", [imie, nazwisko, email,username,haslo,"-"])
 }
@@ -40,6 +49,14 @@ export async function createInvite(idZapraszajacego, idZapraszonego, username){
     const [result] = await  pool.query("Insert into zaproszenie (idZapraszajacego, idZaproszonego, username,status) values (?,?, ?,?)", [idZapraszajacego, idZapraszonego,username,"brak"])
 }
 
+export async function createShoppingInvite(idZapraszajacego, idListy,idZapraszanego){
+    const [result] = await  pool.query("Insert into zaproszenie_do_listy (idZapraszajacego, idListy,idZapraszanego) values (?,?,?)", [idZapraszajacego, idListy,idZapraszanego])
+}
+export async function getShoppingRequests(idZaproszonego) {
+    const [rows] = await pool.query("SELECT * FROM zaproszenie_do_listy WHERE idZapraszanego = ?", [idZaproszonego]);
+    return rows;
+}
+
 export async function getFriendRequests(idZaproszonego) {
     const [rows] = await pool.query("SELECT * FROM zaproszenie WHERE idZaproszonego = ? AND status = 'brak' ", [idZaproszonego]);
     return rows;
@@ -48,6 +65,7 @@ export async function getFriends(idK) {
     const [rows] = await pool.query("SELECT idKlienta, imie, nazwisko, email, typ, username FROM klient WHERE idKlienta IN (SELECT CASE WHEN idZnajomego1 = ? THEN idZnajomego2 ELSE idZnajomego1 END AS idZnajomego FROM znajomi WHERE idZnajomego1 = ? OR idZnajomego2 = ? );", [idK,idK,idK]);
     return rows;
 }
+
 
 export async function setFriendRequestStatus(idZapraszajacego, idZapraszonego,status) {
     const [rows] = await pool.query("UPDATE zaproszenie SET status= ? WHERE idZaproszonego = ? AND idZapraszajacego = ?  ", [status,idZapraszonego,idZapraszajacego]);
@@ -84,6 +102,63 @@ export async function deleteAllEntriesWithIdListy(idListy, userId){
 export async function createListBind(idK, idL){
     const [result] = await  pool.query("Insert into listazakupow_klient (idKlienta, idListy) values (?,?)", [idK, idL])
 }
+
+
+export async function updateUser(idUser, email,name,surname) {
+    const [rows] = await pool.query("UPDATE klient SET imie= ?, nazwisko=?, email=? WHERE idKlienta = ? ", [name,surname,email,idUser]);
+    return rows;
+}
+
+export async function updateUserPass(idUser, password) {
+    const [rows] = await pool.query("UPDATE klient SET haslo=? WHERE idKlienta = ? ", [password,idUser]);
+    return rows;
+}
+
+export async function checkPassword(username, password) {
+    const [rows] = await pool.query("SELECT * FROM klient WHERE username = ? AND haslo=?", [username, password]);
+    return rows.length > 0;
+}
+
+export async function deleteShoppingListNotification(idKli, idListy){
+    const [result] = await  pool.query("DELETE FROM zaproszenie_do_listy WHERE idListy = ? AND idZapraszajacego = ?", [idListy,idKli])
+}
+
+export async function addProduct(idListy, idKlienta,nazwaTworzacego,nazwa,cena,ilosc,notatka,sklep,status){
+    const [result] = await  pool.query("Insert into produkt (idListy, idKlienta,nazwaTworzacego,nazwa,cena,ilosc,notatka,sklep,status) values (?,?,?,?,?,?,?,?,?)", [idListy, idKlienta,nazwaTworzacego,nazwa,cena,ilosc,notatka,sklep,status])
+    const [rows] = await pool.query("SELECT LAST_INSERT_ID() as id");
+    return rows[0].id;
+}
+
+export async function retrieveProductsFromList(idListy,status){
+    const [rows] = await  pool.query("SELECT idProduktu,idListy, idKlienta,nazwaTworzacego,nazwa,cena,typ,ilosc,notatka,sklep,status,nazwaRezerwujacego, nazwaKupujacego FROM produkt where idListy=? and status=?", [idListy,status]);
+    return rows;
+}
+
+export async function setProductStatus(idListy,idProduktu,nazwa,status){
+    if(status=="reserved"){
+        const [rows] = await  pool.query("UPDATE produkt SET status=?, nazwaRezerwujacego=? WHERE idListy=? and idProduktu=?", [status,nazwa,idListy,idProduktu]);
+    }
+    else if(status=="bought"){
+        const [rows] = await  pool.query("UPDATE produkt SET status=?, nazwaKupujacego=? WHERE idListy=? and idProduktu=?", [status,nazwa,idListy,idProduktu]);
+    }
+    else{
+        const [rows] = await  pool.query("UPDATE produkt SET status=?,nazwaKupujacego=?, nazwaRezerwujacego=? WHERE idListy=? and idProduktu=?", [status,"-","-",idListy,idProduktu]);
+    }
+    return "ok";
+}
+export async function deleteProduct(idProduct, idList){
+    const [result] = await  pool.query("DELETE FROM produkt WHERE (idProduktu=? AND idListy=?)", [idProduct, idList])
+}
+
+export async function createReport(idK, opis,username){
+    const [result] = await  pool.query("Insert into raport (idKlienta, opis,username) values (?,?,?)", [idK, opis,username])
+}
+
+export async function updateUserPassRetrieve(password,email) {
+    const [rows] = await pool.query("UPDATE klient SET haslo=? WHERE email = ? ", [password,email]);
+    return rows;
+}
+
 
 
 export { pool };
