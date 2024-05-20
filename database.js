@@ -164,4 +164,10 @@ export async function updateUserPassRetrieve(password,email) {
 export { pool };
 
 
-
+export async function getUsers() {
+    const [rows] = await pool.query("SELECT * FROM klient WHERE typ ='-'");
+    return rows;
+}
+export async function deleteUser(idKli){
+    const [result] = await  pool.query("DELETE FROM klient WHERE idKlienta=?", [idKli])
+}

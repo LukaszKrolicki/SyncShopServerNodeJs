@@ -25,7 +25,9 @@ import {
     createListBind,
     getLists,
     deleteShoppingList,
-    deleteAllEntriesWithIdListy
+    deleteAllEntriesWithIdListy,
+    getUsers,
+    deleteUser
 } from "./database.js";
 
 import bodyParser from 'body-parser';
@@ -471,3 +473,20 @@ async function sendEmail(email, loginCode,text) {
     let info = await transporter.sendMail(mailOptions);
     console.log('Message sent: %s', info.messageId);
 }
+
+app.get('/getUsersList', ensureAuthenticatedAndAdmin, async function (req, res) {
+    const listsRequest = await getUsers();
+    console.log(listsRequest)
+    res.send(listsRequest)
+});
+
+app.post("/deleteUser", ensureAuthenticatedAndAdmin, async (req, res) => {
+    const {idKli} = req.body;
+    try {
+        const list = await deleteUser(idKli);
+        res.status(201).send("List created successfully");
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Error sendin invite request");
+    }
+});
