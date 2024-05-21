@@ -171,3 +171,11 @@ export async function getUsers() {
 export async function deleteUser(idKli){
     const [result] = await  pool.query("DELETE FROM klient WHERE idKlienta=?", [idKli])
 }
+
+export async function getRaports() {
+    const [rows] = await pool.query("SELECT * FROM raport");
+    return rows;
+}
+export async function deleteRaport(idRap){
+    const [result] = await  pool.query("DELETE FROM raport WHERE idRaportu=?", [idRap])
+}

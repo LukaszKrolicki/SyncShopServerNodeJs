@@ -5,7 +5,7 @@ import nodemailer from 'nodemailer';
 import {
     addProduct,
     checkPassword, createReport,
-    createShoppingInvite, deleteProduct, deleteShoppingListNotification, getShoppingRequests,
+    createShoppingInvite, deleteProduct, deleteRaport, deleteShoppingListNotification, getRaports, getShoppingRequests,
     pool, retrieveProductsFromList,
     setFriendRequestStatus, setProductStatus,
     updateUser,
@@ -484,6 +484,23 @@ app.post("/deleteUser", ensureAuthenticatedAndAdmin, async (req, res) => {
     const {idKli} = req.body;
     try {
         const list = await deleteUser(idKli);
+        res.status(201).send("List created successfully");
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Error sendin invite request");
+    }
+});
+
+app.get('/getRaports', ensureAuthenticatedAndAdmin, async function (req, res) {
+    const listsRequest = await getRaports();
+    console.log(listsRequest)
+    res.send(listsRequest)
+});
+
+app.post("/deleteRaport", ensureAuthenticatedAndAdmin, async (req, res) => {
+    const {idRap} = req.body;
+    try {
+        const list = await deleteRaport(idRap);
         res.status(201).send("List created successfully");
     } catch (error) {
         console.error(error);
