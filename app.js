@@ -27,7 +27,7 @@ import {
     deleteShoppingList,
     deleteAllEntriesWithIdListy,
     getUsers,
-    deleteUser
+    deleteUser,
 } from "./database.js";
 
 import bodyParser from 'body-parser';
@@ -501,6 +501,17 @@ app.post("/deleteRaport", ensureAuthenticatedAndAdmin, async (req, res) => {
     const {idRap} = req.body;
     try {
         const list = await deleteRaport(idRap);
+        res.status(201).send("List created successfully");
+    } catch (error) {
+        console.error(error);
+        res.status(500).send("Error sendin invite request");
+    }
+});
+
+app.post("/updateUser", ensureAuthenticatedAndAdmin, async (req, res) => {
+    const {idUser, email, name, surname} = req.body;
+    try {
+        const list = await updateUser(idUser, email, name, surname);
         res.status(201).send("List created successfully");
     } catch (error) {
         console.error(error);
